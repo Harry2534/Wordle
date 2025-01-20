@@ -3,18 +3,18 @@ import tkinter as tk
 from tkinter import ttk
 
 
-def play_game(root: tk.Tk, word_list: list[str]) -> None:
+def play_game(root: tk.Tk, word_list: list[str], check_guess=None) -> None:
     target_word = random.choice(word_list)
     max_attempts = 6
     attempts = 0
 
-    main_frame = tk.Frame(root, background='white', padx=20, pady=20)
+    main_frame = tk.Frame(root, background='#075275', padx=20, pady=20)
     main_frame.grid(row=0, column=0, sticky='nsew')
 
     root.grid_rowconfigure(0, weight=1)
     root.grid_columnconfigure(0, weight=1)
 
-    instructions = tk.Label(main_frame, text="Welcome to Wordle! Guess the 5-letter word.", font=("Arial", 14))
+    instructions = tk.Label(main_frame, text="Welcome to Wordle! Guess the 5-letter word.", font=("Arial", 14), background='#075275', foreground='#ffffff')
     instructions.grid(row=0, column=0, columnspan=5, pady=10)
 
     labels = []
@@ -26,11 +26,14 @@ def play_game(root: tk.Tk, word_list: list[str]) -> None:
             row_labels.append(label)
         labels.append(row_labels)
 
-    feedback_label = tk.Label(main_frame, text="", font=("Arial", 12), foreground="black")
+    feedback_label = tk.Label(main_frame, text="", font=("Arial", 12), background='#075275', foreground='#ffffff')
     feedback_label.grid(row=max_attempts + 1, column=0, columnspan=5, pady=10)
 
     guess_entry = ttk.Entry(main_frame, font=("Arial", 16))
     guess_entry.grid(row=max_attempts + 2, column=0, columnspan=3, padx=5, pady=10)
+
+    root.bind("<Return>", lambda event: check_guess())
+
 
     def check_guess():
         nonlocal attempts
@@ -41,17 +44,16 @@ def play_game(root: tk.Tk, word_list: list[str]) -> None:
             return
 
         for col, char in enumerate(guess):
-            labels[attempts][col].config(text=char)  # Set the text of the label
+            labels[attempts][col].config(text=char)
             if char == target_word[col]:
-                labels[attempts][col].config(background="green")  # Correct position
+                labels[attempts][col].config(background="green")
             elif char in target_word:
-                labels[attempts][col].config(background="yellow")  # Correct letter, wrong position
+                labels[attempts][col].config(background="yellow")
             else:
-                labels[attempts][col].config(background="gray")  # Incorrect letter
+                labels[attempts][col].config(background="gray")
 
         attempts += 1
 
-        # Check win/loss conditions
         if guess == target_word:
             feedback_label.config(text="Congratulations! You guessed the word!", foreground="green")
             guess_button.config(state="disabled")
@@ -61,11 +63,9 @@ def play_game(root: tk.Tk, word_list: list[str]) -> None:
             guess_button.config(state="disabled")
             return
 
-        # Clear the input field for the next guess
         guess_entry.delete(0, tk.END)
         feedback_label.config(text=f"Attempts remaining: {max_attempts - attempts}")
 
-    # Submit button
     guess_button = ttk.Button(main_frame, text="Submit Guess", command=check_guess)
     guess_button.grid(row=max_attempts + 2, column=3, padx=5, pady=10)
 
@@ -97,7 +97,7 @@ def main() -> None:
 
     root = tk.Tk()
     root.title("Wordle Game")
-    root.geometry("500x600")
+    root.geometry("500x450")
     root.configure(background='#000000')
 
     play_game(root, word_list)
